@@ -26,16 +26,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-
-
-//import com.brentaureli.mariobros.Sprites.Items.Item;
-//import com.brentaureli.mariobros.Sprites.Items.ItemDef;
-//import com.brentaureli.mariobros.Sprites.Items.Mushroom;
-//import com.brentaureli.mariobros.Sprites.Mario;
-//import com.brentaureli.mariobros.Tools.B2WorldCreator;
-//import com.brentaureli.mariobros.Tools.WorldContactListener;
-
-import java.util.PriorityQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static Com.pack.Mario.Sprites.Mario.State.DEAD;
@@ -43,12 +33,11 @@ import static Com.pack.Mario.Sprites.Mario.State.DEAD;
 /**
  * Created by brentaureli on 8/14/15.
  */
-public class PlayScreen implements Screen{
+public class PlayScreen implements Screen {
+    public static boolean alreadyDestroyed = false;
     //Reference to our Game, used to set Screens
     private Main game;
     private TextureAtlas atlas;
-    public static boolean alreadyDestroyed = false;
-
     //basic playscreen variables
     private OrthographicCamera gamecam;
     private Viewport gamePort;
@@ -73,7 +62,7 @@ public class PlayScreen implements Screen{
     private LinkedBlockingQueue<ItemDef> itemsToSpawn;
 
 
-    public PlayScreen(Main game){
+    public PlayScreen(Main game) {
         atlas = new TextureAtlas("Mario_and_Enemies.pack");
 
         this.game = game;
@@ -89,7 +78,7 @@ public class PlayScreen implements Screen{
         //Load our map and setup our map renderer
         maploader = new TmxMapLoader();
         map = maploader.load("level1.tmx");
-        renderer = new OrthogonalTiledMapRenderer(map, 1  / Main.PPM);
+        renderer = new OrthogonalTiledMapRenderer(map, 1 / Main.PPM);
 
         //initially set our gamcam to be centered correctly at the start of of map
         gamecam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
@@ -115,22 +104,22 @@ public class PlayScreen implements Screen{
         itemsToSpawn = new LinkedBlockingQueue<ItemDef>();
     }
 
-    public void spawnItem(ItemDef idef){
+    public void spawnItem(ItemDef idef) {
         itemsToSpawn.add(idef);
     }
 
 
-    public void handleSpawningItems(){
-        if(!itemsToSpawn.isEmpty()){
+    public void handleSpawningItems() {
+        if (!itemsToSpawn.isEmpty()) {
             ItemDef idef = itemsToSpawn.poll();
-            if(idef.type == Mushroom.class){
+            if (idef.type == Mushroom.class) {
                 items.add(new Mushroom(this, idef.position.x, idef.position.y));
             }
         }
     }
 
 
-    public TextureAtlas getAtlas(){
+    public TextureAtlas getAtlas() {
         return atlas;
     }
 
@@ -140,9 +129,9 @@ public class PlayScreen implements Screen{
 
     }
 
-    public void handleInput(float dt){
+    public void handleInput(float dt) {
         //control our player using immediate impulses
-        if(player.currentState != DEAD) {
+        if (player.currentState != DEAD) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.UP))
                 player.jump();
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= 2)
@@ -155,7 +144,7 @@ public class PlayScreen implements Screen{
 
     }
 
-    public void update(float dt){
+    public void update(float dt) {
         //handle user input first
         handleInput(dt);
         handleSpawningItems();
@@ -164,20 +153,20 @@ public class PlayScreen implements Screen{
         world.step(1 / 60f, 6, 2);
 
         player.update(dt);
-        for(Enemy enemy : creator.getEnemies()) {
+        for (Enemy enemy : creator.getEnemies()) {
             enemy.update(dt);
-            if(enemy.getX() < player.getX() + 224 / Main.PPM) {
+            if (enemy.getX() < player.getX() + 224 / Main.PPM) {
                 enemy.b2body.setActive(true);
             }
         }
 
-        for(Item item : items)
+        for (Item item : items)
             item.update(dt);
 
         hud.update(dt);
 
         //attach our gamecam to our players.x coordinate
-        if(player.currentState != DEAD) {
+        if (player.currentState != DEAD) {
             gamecam.position.x = player.b2body.getPosition().x;
         }
 
@@ -217,15 +206,15 @@ public class PlayScreen implements Screen{
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
 
-        if(gameOver()){
+        if (gameOver()) {
             game.setScreen(new GameOverScreen(game));
             dispose();
         }
 
     }
 
-    public boolean gameOver(){
-        if(player.currentState == DEAD && player.getStateTimer() > 3){
+    public boolean gameOver() {
+        if (player.currentState == DEAD && player.getStateTimer() > 3) {
             return true;
         }
         return false;
@@ -234,14 +223,15 @@ public class PlayScreen implements Screen{
     @Override
     public void resize(int width, int height) {
         //updated our game viewport
-        gamePort.update(width,height);
+        gamePort.update(width, height);
 
     }
 
-    public TiledMap getMap(){
+    public TiledMap getMap() {
         return map;
     }
-    public World getWorld(){
+
+    public World getWorld() {
         return world;
     }
 
@@ -270,5 +260,7 @@ public class PlayScreen implements Screen{
         hud.dispose();
     }
 
-    public Hud getHud(){ return hud; }
+    public Hud getHud() {
+        return hud;
+    }
 }

@@ -71,6 +71,7 @@ public class Goomba extends Enemy {
             Main.BRICK_BIT |
             Main.ENEMY_BIT |
             Main.OBJECT_BIT |
+            Main.FIREBALL_BIT|
             Main.MARIO_BIT;
 
         fdef.shape = shape;
@@ -111,5 +112,10 @@ public class Goomba extends Enemy {
         } else {
             reverseVelocity(true, false);
         }
+    }
+    @Override
+    public  void hitByFireBall(){
+        setToDestroy = true;
+
     }
 }

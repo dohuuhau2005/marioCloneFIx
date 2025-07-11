@@ -57,6 +57,7 @@ public class Turtle extends Enemy {
             Main.BRICK_BIT |
             Main.ENEMY_BIT |
             Main.OBJECT_BIT |
+
             Main.MARIO_BIT;
 
         fdef.shape = shape;

@@ -75,6 +75,12 @@ public class WorldContactListener implements ContactListener {
                 else
                     ((FireBall)fixB.getUserData()).setToDestroy();
                 break;
+                case Main.FIREBALL_BIT | Main.ENEMY_BIT:
+                    if(fixA.getFilterData().categoryBits == Main.FIREBALL_BIT)
+                        ((FireBall) fixA.getUserData()).hit((Enemy)fixB.getUserData());
+                    else
+                        ((FireBall) fixB.getUserData()).hit((Enemy)fixA.getUserData());
+                    break;
         }
     }
 
@@ -90,4 +96,5 @@ public class WorldContactListener implements ContactListener {
     public void postSolve(Contact contact, ContactImpulse impulse) {
 
     }
+
 }
