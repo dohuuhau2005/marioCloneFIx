@@ -23,11 +23,10 @@ import static Com.pack.Mario.Sprites.Mario.State.DEAD;
  */
 public class Mario extends Sprite {
     public State currentState;
-
-    ;
     public State previousState;
     public World world;
     public Body b2body;
+    private boolean pendingFireball;
     private TextureRegion marioStand;
     private Animation marioRun;
     private TextureRegion marioJump;
@@ -129,6 +128,7 @@ public class Mario extends Sprite {
             if (ball.isDestroyed())
                 fireballs.removeValue(ball, true);
         }
+        
 
     }
 
@@ -370,8 +370,14 @@ public class Mario extends Sprite {
     }
 
     public void fire() {
-        fireballs.add(new FireBall(screen, b2body.getPosition().x, b2body.getPosition().y, runningRight ? true : false));
+        if (!world.isLocked()) {
+            fireballs.add(new FireBall(screen, b2body.getPosition().x, b2body.getPosition().y, runningRight));
+        } else {
+            System.out.println("Skipped fire: world is locked.");
+            pendingFireball = true;
+        }
     }
+
 
     public void draw(Batch batch) {
         super.draw(batch);

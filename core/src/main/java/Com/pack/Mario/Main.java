@@ -1,18 +1,13 @@
 package Com.pack.Mario;
 
-import Com.pack.Mario.Screens.PlayScreen;
-import com.badlogic.gdx.ApplicationAdapter;
+import Com.pack.Mario.ScreenBeforePlay.HomeScreen;
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
 
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
+/**
+ * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms.
+ */
 public class Main extends Game {
     //Virtual Screen size and Box2D Scale(Pixels Per Meter)
     public static final int V_WIDTH = 400;
@@ -32,32 +27,30 @@ public class Main extends Game {
     public static final short ITEM_BIT = 256;
     public static final short MARIO_HEAD_BIT = 512;
     public static final short FIREBALL_BIT = 1024;
-
-    public SpriteBatch batch;
-
     /* WARNING Using AssetManager in a static way can cause issues, especially on Android.
     Instead you may want to pass around Assetmanager to those the classes that need it.
     We will use it in the static context to save time for now. */
     public static AssetManager manager;
+    public SpriteBatch batch;
 
     @Override
-    public void create () {
-        batch = new SpriteBatch();
-        manager = new AssetManager();
-        manager.load("audio/music/mario_music.ogg", Music.class);
-        manager.load("audio/sounds/coin.wav", Sound.class);
-        manager.load("audio/sounds/bump.wav", Sound.class);
-        manager.load("audio/sounds/breakblock.wav", Sound.class);
-        manager.load("audio/sounds/powerup_spawn.wav", Sound.class);
-        manager.load("audio/sounds/powerup.wav", Sound.class);
-        manager.load("audio/sounds/powerdown.wav", Sound.class);
-        manager.load("audio/sounds/stomp.wav", Sound.class);
-        manager.load("audio/sounds/mariodie.wav", Sound.class);
+    public void create() {
+//        batch = new SpriteBatch();
+//        manager = new AssetManager();
+//        manager.load("audio/music/mario_music.ogg", Music.class);
+//        manager.load("audio/sounds/coin.wav", Sound.class);
+//        manager.load("audio/sounds/bump.wav", Sound.class);
+//        manager.load("audio/sounds/breakblock.wav", Sound.class);
+//        manager.load("audio/sounds/powerup_spawn.wav", Sound.class);
+//        manager.load("audio/sounds/powerup.wav", Sound.class);
+//        manager.load("audio/sounds/powerdown.wav", Sound.class);
+//        manager.load("audio/sounds/stomp.wav", Sound.class);
+//        manager.load("audio/sounds/mariodie.wav", Sound.class);
+//
+//        manager.finishLoading();
 
-        manager.finishLoading();
-
-        setScreen(new PlayScreen(this));
-
+//        setScreen(new PlayScreen(this));
+        setScreen(new HomeScreen(this));
     }
 
 
@@ -69,7 +62,7 @@ public class Main extends Game {
     }
 
     @Override
-    public void render () {
+    public void render() {
         super.render();
     }
 }
