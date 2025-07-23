@@ -1,6 +1,6 @@
 package Com.pack.Mario;
 
-import Com.pack.Mario.ScreenBeforePlay.HomeScreen;
+import Com.pack.Mario.ScreenBeforePlay.SignUpScreen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -50,7 +50,7 @@ public class Main extends Game {
 //        manager.finishLoading();
 
 //        setScreen(new PlayScreen(this));
-        setScreen(new HomeScreen(this));
+        setScreen(new SignUpScreen(this));
     }
 
 
