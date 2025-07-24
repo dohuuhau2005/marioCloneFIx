@@ -6,10 +6,11 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class RankingScreen implements Screen {
@@ -37,27 +38,27 @@ public class RankingScreen implements Screen {
         stage.addActor(root);
 
         // ===== HEADER =====
-        Table header = new Table();
-        header.setBackground(skin.newDrawable("white", new Color(0.2f, 0.4f, 0.8f, 0.9f)));
-        header.pad(15);
-
-        Label title = new Label("Ranking", skin);
-        title.setFontScale(1.8f);
-        title.setColor(Color.BLACK);
-        header.add(title).expandX().left().padLeft(20);
-
-        TextButton closeBtn = new TextButton("X", skin);
-        closeBtn.getLabel().setFontScale(1.2f);
-        closeBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new HomeScreen(game));
-            }
-        });
-        header.add(closeBtn).right().width(50);
-
-        root.add(header).fillX();
-        root.row();
+//        Table header = new Table();
+//        header.setBackground(skin.newDrawable("white", new Color(0.2f, 0.4f, 0.8f, 0.9f)));
+//        header.pad(15);
+//
+//        Label title = new Label("Ranking", skin);
+//        title.setFontScale(1.8f);
+//        title.setColor(Color.BLACK);
+//        header.add(title).expandX().left().padLeft(20);
+//
+//        TextButton closeBtn = new TextButton("X", skin);
+//        closeBtn.getLabel().setFontScale(1.2f);
+//        closeBtn.addListener(new ClickListener() {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y) {
+//                game.setScreen(new HomeScreen(game));
+//            }
+//        });
+//        header.add(closeBtn).right().width(50);
+//
+//        root.add(header).fillX();
+//        root.row();
 
         // ===== 4 RANKING ROWS =====
         Table rankingTable = new Table();
@@ -105,6 +106,7 @@ public class RankingScreen implements Screen {
 
     @Override
     public void show() {
+        new Exit(skin).PressExit(stage);
     }
 
     @Override

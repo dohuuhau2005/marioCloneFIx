@@ -1,5 +1,6 @@
 package Com.pack.Mario.ScreenBeforePlay;
 
+import Com.pack.Mario.Model.UserDao;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Event;
@@ -38,7 +39,7 @@ public class LoginScreen implements Screen {
         stage.addActor(table);
 
         UsernameField = new TextField("", skin);
-        UsernameField.setMessageText("Username");
+        UsernameField.setMessageText("Email");
         PasswordField = new TextField("", skin);
         PasswordField.setPasswordMode(true);
         PasswordField.setPasswordCharacter('*');
@@ -68,14 +69,29 @@ public class LoginScreen implements Screen {
             @Override
             public boolean handle(Event event) {
                 if (loginButton.isPressed()) {
-                    String username = UsernameField.getText();
+                    String email = UsernameField.getText();
                     String password = PasswordField.getText();
-                    if (username.equals("admin") && password.equals("admin")) {
+//                    if (username.equals("admin") && password.equals("admin")) {
+//                        System.out.println("Login Successful");
+//                        game.setScreen(new HomeScreen(game));
+//
+//                    }
+                    if (new UserDao().Login(email, password)) {
                         System.out.println("Login Successful");
+                        Preferences prefs = Gdx.app.getPreferences("UserSession");
+
+                        prefs.putString("email", email);
+                        prefs.flush();
                         game.setScreen(new HomeScreen(game));
 
                     } else {
                         System.out.println("Login Failed");
+                        Dialog errorDialog = new Dialog("Log In Error", skin);
+                        errorDialog.text("Email or Password is wrong");
+                        errorDialog.button("OK", true); // Thêm nút OK
+
+
+                        errorDialog.show(stage);
                     }
                 }
                 return false;

@@ -1,20 +1,31 @@
-package Com.pack.Mario.MongoDB;
+package Com.pack.Mario.Model;
 
 public class User {
+    String username;
     String email;
     String password;
     String salt;
     int point;
     int level;
-    String DOB;
+    int dobDay;
+    int dobMonth;
+    int dobYear;
 
-    public User(String email, String password, String salt, int point, int level, String DOB) {
+    public User(String email, String password, String salt, int point, int level, int dobDay,
+                int dobMonth,
+                int dobYear) {
         this.email = email;
         this.password = password;
         this.salt = salt;
         this.point = point;
         this.level = level;
-        this.DOB = DOB;
+        this.dobDay = dobDay;
+        this.dobMonth = dobMonth;
+        this.dobYear = dobYear;
+
+    }
+
+    public User() {
 
     }
 
@@ -25,6 +36,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
@@ -60,12 +79,28 @@ public class User {
         this.level = level;
     }
 
-    public String getDOB() {
-        return DOB;
+    public int getDobDay() {
+        return dobDay;
     }
 
-    public void setDOB(String DOB) {
-        this.DOB = DOB;
+    public void setDobDay(int dobDay) {
+        this.dobDay = dobDay;
+    }
+
+    public int getDobMonth() {
+        return dobMonth;
+    }
+
+    public void setDobMonth(int dobMonth) {
+        this.dobMonth = dobMonth;
+    }
+
+    public int getDobYear() {
+        return dobYear;
+    }
+
+    public void setDobYear(int dobYear) {
+        this.dobYear = dobYear;
     }
 
 }

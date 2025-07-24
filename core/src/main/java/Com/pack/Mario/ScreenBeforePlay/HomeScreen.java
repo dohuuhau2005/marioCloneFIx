@@ -1,7 +1,10 @@
 package Com.pack.Mario.ScreenBeforePlay;
 
+import Com.pack.Mario.Model.User;
+import Com.pack.Mario.Model.UserDao;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -13,6 +16,8 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class HomeScreen implements Screen {
     Game game;
+    User user;
+    String email;
     private Stage stage;
     private Texture marioTexture, logoTexture;
     private Image marioImage, logoImage;
@@ -21,15 +26,25 @@ public class HomeScreen implements Screen {
     public HomeScreen(Game game) {
         this.game = game;
         this.stage = new Stage();
+        this.stage = new Stage(new ScreenViewport());
         this.skin = new Skin(Gdx.files.internal("uiskin.json"));
+        Preferences prefs = Gdx.app.getPreferences("UserSession");
+        email = prefs.getString("email", null);
+        if (email != null) {
+            this.user = new UserDao().GetUser(email);
+
+            System.out.println("helloooooooooooooooo " + email);
+        } else {
+            System.out.println("nooo chx dang nhap kia");
+        }
         Gdx.input.setInputProcessor(stage);
     }
 
     @Override
     public void show() {
-        stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(stage);
 
+
+        new Exit(skin).PressExit(stage);
         skin = new Skin(Gdx.files.internal("uiskin.json")); // Dùng skin mặc định
 
         // Load ảnh
@@ -40,12 +55,12 @@ public class HomeScreen implements Screen {
         logoImage = new Image(logoTexture);
 
         // Label tên người chơi
-        Label nameLabel = new Label("Tôi tên yêu Hào", skin);
+        Label nameLabel = new Label("Hello " + user.getUsername(), skin);
 
         // Các nút
-        TextButton renameButton = new TextButton("RENAME", skin);
+        TextButton renameButton = new TextButton("Detail Profile", skin);
         TextButton playButton = new TextButton("Play", skin);
-        TextButton historyButton = new TextButton("Lịch sử đấu", skin);
+        TextButton historyButton = new TextButton("Rank", skin);
 
         // Gắn sự kiện (có thể xử lý sau)
         playButton.addListener(new ClickListener() {

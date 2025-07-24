@@ -88,6 +88,7 @@ public class LevelSelectScreen implements Screen {
 
     @Override
     public void show() {
+        new Exit(skin).PressExit(stage);
     }
 
     @Override
