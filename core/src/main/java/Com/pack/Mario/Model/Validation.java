@@ -16,6 +16,13 @@ public class Validation {
         return false;
     }
 
+    public String CheckPassword(String password) {
+        if (password.length() < 6) {
+            return "Password should be at least 6 characters";
+        }
+        return null;
+    }
+
     public List<String> Validate(User user) {
         int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
         errors = new ArrayList<String>();

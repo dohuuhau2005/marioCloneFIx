@@ -1,7 +1,10 @@
 package Com.pack.Mario.ScreenBeforePlay;
 
+import Com.pack.Mario.Main;
+import Com.pack.Mario.Model.MyGame;
 import Com.pack.Mario.Model.User;
 import Com.pack.Mario.Model.UserDao;
+import Com.pack.Mario.Screens.PlayScreen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
@@ -18,6 +21,7 @@ public class HomeScreen implements Screen {
     Game game;
     User user;
     String email;
+    MyGame DataUser;
     private Stage stage;
     private Texture marioTexture, logoTexture;
     private Image marioImage, logoImage;
@@ -30,8 +34,13 @@ public class HomeScreen implements Screen {
         this.skin = new Skin(Gdx.files.internal("uiskin.json"));
         Preferences prefs = Gdx.app.getPreferences("UserSession");
         email = prefs.getString("email", null);
+
         if (email != null) {
+
             this.user = new UserDao().GetUser(email);
+
+
+            System.out.println("Game class is: " + game.getClass().getName());
 
             System.out.println("helloooooooooooooooo " + email);
         } else {
@@ -43,19 +52,19 @@ public class HomeScreen implements Screen {
     @Override
     public void show() {
 
+        Texture backgroundTexture = new Texture(Gdx.files.internal("backgroundHome.jpg"));
+        Image backgroundImage = new Image(backgroundTexture);
+        backgroundImage.setFillParent(true); // Cho phủ toàn màn hình
+
+        stage.addActor(backgroundImage); //  Add đầu tiên để nằm dưới cùng
 
         new Exit(skin).PressExit(stage);
         skin = new Skin(Gdx.files.internal("uiskin.json")); // Dùng skin mặc định
 
-        // Load ảnh
-        marioTexture = new Texture(Gdx.files.internal("mario.jpg"));
-        logoTexture = new Texture(Gdx.files.internal("mario.jpg"));
-
-        marioImage = new Image(marioTexture);
-        logoImage = new Image(logoTexture);
 
         // Label tên người chơi
         Label nameLabel = new Label("Hello " + user.getUsername(), skin);
+        nameLabel.setFontScale(4f); // Tăng gấp đôi kích thước
 
         // Các nút
         TextButton renameButton = new TextButton("Detail Profile", skin);
@@ -67,12 +76,15 @@ public class HomeScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 // Ví dụ chuyển sang màn chơi
                 System.out.println("Bắt đầu chơi...");
+                game.setScreen(new PlayScreen((Main) game));
             }
         });
 
         renameButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Đổi tên...");
+                ((Main) game).setCurrentUser(user);
+
+                game.setScreen(new AccountDetailScreen(game));
             }
         });
 
@@ -82,10 +94,10 @@ public class HomeScreen implements Screen {
         table.center();
 
         // Thêm vào layout
-        table.add(marioImage).size(200).padBottom(20).row();
+
         table.add(nameLabel).padBottom(10).row();
         table.add(renameButton).padBottom(15).row();
-        table.add(logoImage).size(250, 100).padBottom(10).row();
+
         table.add(playButton).size(150, 50).padBottom(10).row();
         table.add(historyButton).size(150, 50).padBottom(10).row();
 
@@ -121,7 +133,7 @@ public class HomeScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
-        marioTexture.dispose();
-        logoTexture.dispose();
+        skin.dispose();
+
     }
 }

@@ -1,5 +1,9 @@
 package Com.pack.Mario.ScreenBeforePlay;
 
+import Com.pack.Mario.Main;
+import Com.pack.Mario.Model.User;
+import Com.pack.Mario.Model.UserDao;
+import Com.pack.Mario.Model.Validation;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -16,6 +20,13 @@ public class AccountDetailScreen implements Screen {
     private final Game game;
     private final Stage stage;
     private final Skin skin;
+    User user;
+    String email;
+    Button ChangeProfileButton;
+    Button ChangePasswordButton;
+    Button SignOutButton;
+    TextField passwordField;
+    TextField ConfirmpasswordField;
     private Texture avatarTexture;
     private Texture backgroundTexture;
     private SpriteBatch batch;
@@ -25,11 +36,18 @@ public class AccountDetailScreen implements Screen {
         this.stage = new Stage(new ScreenViewport());
         this.skin = new Skin(Gdx.files.internal("uiskin.json"));
         this.batch = new SpriteBatch();
+        Preferences prefs = Gdx.app.getPreferences("UserSession");
+        user = ((Main) game).getCurrentUser();
+        email = prefs.getString("email", null);
+        System.out.println(user.getEmail());
+        System.out.println(user.getDobDay());
+
         Gdx.input.setInputProcessor(stage);
 
         backgroundTexture = new Texture(Gdx.files.internal("ma2.jpg")); // Thêm ảnh nền
 
         buildUI();
+        ClickButton();
     }
 
     private void buildUI() {
@@ -70,12 +88,16 @@ public class AccountDetailScreen implements Screen {
         infoPanel.pad(25);
         infoPanel.defaults().pad(15).left();
 
-        Label usernameLabel = new Label("Username: MarioFan123", skin);
+        Label usernameLabel = new Label("Username: " + user.getUsername(), skin);
+        Label DOBLabel = new Label("Date Of Birth: " + user.getDobDay() + " " + user.getDobMonth() + " " + user.getDobYear(), skin);
         Label rankingLabel = new Label("Ranking: #1234", skin);
-        Label levelLabel = new Label("Level: 15", skin);
+        Label levelLabel = new Label("Level: 15", skin);////////////////thieu level
+        ChangeProfileButton = new TextButton("Change Profile", skin);
+        ChangePasswordButton = new TextButton("Change Password", skin);
+        SignOutButton = new TextButton("Sign Out", skin);
 
-        for (Label label : new Label[]{usernameLabel, rankingLabel, levelLabel}) {
-            label.setFontScale(1.3f);
+        for (Label label : new Label[]{usernameLabel, rankingLabel, levelLabel, DOBLabel}) {
+            label.setFontScale(1.7f);
             infoPanel.add(label).left().row();
         }
 
@@ -91,12 +113,105 @@ public class AccountDetailScreen implements Screen {
             avatarImg.setSize(140, 180);
         }
 
-        Table centerTable = new Table();
-        centerTable.add(infoPanel).padRight(60);
-        centerTable.add(avatarImg).width(140).height(180);
+// ===== INFO PANEL =====
+        infoPanel = new Table(skin);
 
-        root.add(centerTable).expand().center();
+// Bo góc nếu bạn có `white-rounded` hoặc `default-round` trong `uiskin.atlas`
+// Nếu không có thì xài drawable trắng bình thường
+        infoPanel.setBackground(skin.newDrawable("white", new Color(0.95f, 0.95f, 0.95f, 0.9f)));
+// Có thể dùng ảnh radius thực tế nếu muốn đẹp hơn
+
+        infoPanel.pad(25);
+        infoPanel.defaults().pad(15).left();
+
+        usernameLabel = new Label("Username: " + user.getUsername(), skin);
+        DOBLabel = new Label("Date Of Birth: " + user.getDobDay() + " - " + user.getDobMonth() + " - " + user.getDobYear(), skin);
+        rankingLabel = new Label("Ranking: #1234", skin);
+        levelLabel = new Label("Level: 15", skin);
+
+        for (Label label : new Label[]{usernameLabel, rankingLabel, levelLabel, DOBLabel}) {
+            label.setFontScale(1.5f);
+            infoPanel.add(label).left().row();
+        }
+        infoPanel.add(ChangeProfileButton).left();
+        infoPanel.add(ChangePasswordButton).right().row();
+//        infoPanel.add(SignOutButton).width(200).height(20).center().row();
+// ===== Vertical Table chứa avatar trên, info dưới =====
+        Table profileTable = new Table();
+        profileTable.add(avatarImg).padBottom(30).width(100).height(120).row();
+        profileTable.add(infoPanel).width(500).row(); // Width cố định cho đẹp
+        profileTable.add(SignOutButton).width(500).height(50).row();
+        root.add(profileTable).center().expand();
+
     }
+
+    void makeDiallog() {
+
+    }
+
+    public void ClickButton() {
+        ChangePasswordButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // Tạo dialog nhập password
+                final Dialog passwordDialog = new Dialog("Change Password", skin) {
+                    @Override
+                    protected void result(Object object) {
+                        boolean confirmed = (Boolean) object;
+                        if (confirmed) {
+                            String newPassword = passwordField.getText();
+                            String confirmPassword = ConfirmpasswordField.getText();
+                            System.out.println("New password: " + newPassword);
+                            if (newPassword.equals(confirmPassword)) {
+                                String error = new Validation().CheckPassword(newPassword);
+                                if (error == null) {
+                                    new UserDao().ChangePassword(email, newPassword);
+                                } else {
+                                    Dialog errorDialog = new Dialog("Password Error", skin);
+                                    errorDialog.text(error);
+                                    errorDialog.button("ok");
+                                    errorDialog.center();
+                                    errorDialog.setVisible(true);
+                                    errorDialog.show(stage);
+                                }
+
+                            } else {
+                                Dialog errorDialog = new Dialog("Password Error", skin);
+                                errorDialog.text("Passwords does not match");
+                                errorDialog.button("ok");
+                                errorDialog.center();
+                                errorDialog.setVisible(true);
+                                errorDialog.show(stage);
+                            }
+                        }
+                    }
+                };
+
+                passwordDialog.pad(20);
+                passwordDialog.getContentTable().defaults().pad(10);
+
+                // Tạo textfield nhập password
+                passwordField = new TextField("", skin);
+                passwordField.setMessageText("Enter new password");
+                passwordField.setPasswordCharacter('*');
+                passwordField.setPasswordMode(true);
+
+                ConfirmpasswordField = new TextField("Confirm new password", skin);
+                ConfirmpasswordField.setPasswordCharacter('*');
+                ConfirmpasswordField.setPasswordMode(true);
+
+                passwordDialog.text("Please enter your new password:");
+                passwordDialog.getContentTable().add(passwordField).width(300).row();
+                passwordDialog.getContentTable().add(ConfirmpasswordField).width(300).row();
+
+                passwordDialog.button("Confirm", true);
+                passwordDialog.button("Cancel", false);
+
+                passwordDialog.show(stage); // Hiển thị trên stage chính
+            }
+        });
+    }
+
 
     @Override
     public void show() {

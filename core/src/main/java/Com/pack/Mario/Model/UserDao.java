@@ -109,20 +109,50 @@ public class UserDao {
             if (resultEmail != null) {
                 Document profile = (Document) resultEmail.get("Profile");
                 String Username = profile.getString("Username");
-                Integer DayOfBirth = profile.getInteger("DayOfBirth");
-                Integer MonthOfBirth = profile.getInteger("MonthOfBirth");
-                Integer YearOfBirth = profile.getInteger("YearOfBirth");
+                Integer DayOfBirth = profile.getInteger("Day of Birth");
+                Integer MonthOfBirth = profile.getInteger("Month of Birth");
+                Integer YearOfBirth = profile.getInteger("Year of Birth");
+                user = new User();
                 user.setUsername(Username);
                 user.setDobDay(DayOfBirth);
                 user.setDobMonth(MonthOfBirth);
                 user.setDobYear(YearOfBirth);
                 return user;
 
+            } else {
+                System.out.println("User not found");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException();
+            throw new RuntimeException("khong tìm thấy user");
         }
         return null;
+    }
+
+    public void ChangePassword(String email, String newPassword) {
+        MongoDatabase db = ConnectionFactory.getMongoClient();
+        try {
+            MongoCollection<Document> collection = db.getCollection("Users");
+            Document query = new Document("Email", email);
+            Document resultEmail = collection.find(query).first();
+            MessageDigest md = MessageDigest.getInstance("SHA-512");
+            String salt = generateSalt(16);
+
+            String passwordWithSalt = newPassword + salt;
+            byte[] hashedBytes = md.digest(passwordWithSalt.getBytes());
+
+            String hashPassword = Base64.getEncoder().encodeToString(hashedBytes);
+            Document updatePass = new Document()
+                .append("Profile.Password", hashPassword)
+                .append("Profile.Salt", salt);
+            Document updateOperation = new Document("$set", updatePass);
+            collection.updateOne(query, updateOperation);
+            System.out.println("Password updated successfully for: " + email);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error changing password");
+        }
     }
 }

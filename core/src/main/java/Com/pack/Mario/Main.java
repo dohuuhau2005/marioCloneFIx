@@ -1,6 +1,7 @@
 package Com.pack.Mario;
 
-import Com.pack.Mario.ScreenBeforePlay.SignUpScreen;
+import Com.pack.Mario.Model.User;
+import Com.pack.Mario.ScreenBeforePlay.LoginScreen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
@@ -34,6 +35,15 @@ public class Main extends Game {
     We will use it in the static context to save time for now. */
     public static AssetManager manager;
     public SpriteBatch batch;
+    User currentUser;
+
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(User currentUser) {
+        this.currentUser = currentUser;
+    }
 
     @Override
     public void create() {
@@ -52,7 +62,7 @@ public class Main extends Game {
         manager.finishLoading();
 
 //        setScreen(new PlayScreen(this));
-        setScreen(new SignUpScreen(this));
+        setScreen(new LoginScreen(this));
     }
 
 
