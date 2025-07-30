@@ -1,0 +1,24 @@
+{
+  "a@gmail.com": {
+    "username": "a",
+    "email": "a@gmail.com",
+    "password": "EKfSx5aNq/6FzOV0WudrzmIxlkTXqHCJE14DhHM0xn1Jbmtt5DUiX3/6AKYAAD3ndOAxaWpfkqIkOYTXJ69QrQ\u003d\u003d",
+    "salt": "t6ZJOZsr4yXQh7Dnf7HAug\u003d\u003d",
+    "point": 0,
+    "level": 0,
+    "dobDay": 20,
+    "dobMonth": 5,
+    "dobYear": 1987
+  },
+  "b@gmail.com": {
+    "username": "b",
+    "email": "b@gmail.com",
+    "password": "TvfrQPCmlUk8fIw1pT3V8mM6NRwP/zSu3owXPdMCcV9BdIRzwQB81JV3M6XstSTxMRpTOWXrTabGu5kC6OkZ6g\u003d\u003d",
+    "salt": "aRLuP41zTevkHSwydmmAWQ\u003d\u003d",
+    "point": 0,
+    "level": 0,
+    "dobDay": 17,
+    "dobMonth": 9,
+    "dobYear": 1956
+  }
+}

@@ -34,6 +34,8 @@ dependencies {
   implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
   implementation 'org.mongodb:mongodb-driver-sync:4.11.0'
   implementation 'org.slf4j:slf4j-simple:2.0.13'
+  implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+  implementation 'com.google.code.gson:gson:2.10.1'
   if (enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-backend-lwjgl3:$graalHelperVersion"
 

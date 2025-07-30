@@ -75,6 +75,7 @@ public class HomeScreen implements Screen {
         playButton.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
                 // Ví dụ chuyển sang màn chơi
+                ((Main) game).setCurrentUser(user);
                 System.out.println("Bắt đầu chơi...");
                 game.setScreen(new PlayScreen((Main) game));
             }
@@ -85,6 +86,13 @@ public class HomeScreen implements Screen {
                 ((Main) game).setCurrentUser(user);
 
                 game.setScreen(new AccountDetailScreen(game));
+            }
+        });
+        historyButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ((Main) game).setCurrentUser(user);
+                game.setScreen(new RankingScreen(game));
             }
         });
 

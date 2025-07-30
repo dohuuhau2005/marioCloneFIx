@@ -20,6 +20,8 @@ public class AccountDetailScreen implements Screen {
     private final Game game;
     private final Stage stage;
     private final Skin skin;
+    private final Texture backgroundTexture;
+    private final SpriteBatch batch;
     User user;
     String email;
     Button ChangeProfileButton;
@@ -27,16 +29,19 @@ public class AccountDetailScreen implements Screen {
     Button SignOutButton;
     TextField passwordField;
     TextField ConfirmpasswordField;
+    TextField usernameField;
+    SelectBox<String> DayBox;
+    SelectBox<String> MonthBox;
+    SelectBox<String> YearBox;
+    Preferences prefs;
     private Texture avatarTexture;
-    private Texture backgroundTexture;
-    private SpriteBatch batch;
 
     public AccountDetailScreen(Game game) {
         this.game = game;
         this.stage = new Stage(new ScreenViewport());
         this.skin = new Skin(Gdx.files.internal("uiskin.json"));
         this.batch = new SpriteBatch();
-        Preferences prefs = Gdx.app.getPreferences("UserSession");
+        prefs = Gdx.app.getPreferences("UserSession");
         user = ((Main) game).getCurrentUser();
         email = prefs.getString("email", null);
         System.out.println(user.getEmail());
@@ -196,11 +201,13 @@ public class AccountDetailScreen implements Screen {
                 passwordField.setPasswordCharacter('*');
                 passwordField.setPasswordMode(true);
 
-                ConfirmpasswordField = new TextField("Confirm new password", skin);
+                ConfirmpasswordField = new TextField("", skin);
+                ConfirmpasswordField.setMessageText("Enter new Confirm Password");
                 ConfirmpasswordField.setPasswordCharacter('*');
                 ConfirmpasswordField.setPasswordMode(true);
 
                 passwordDialog.text("Please enter your new password:");
+                passwordDialog.getContentTable().row();
                 passwordDialog.getContentTable().add(passwordField).width(300).row();
                 passwordDialog.getContentTable().add(ConfirmpasswordField).width(300).row();
 
@@ -210,6 +217,108 @@ public class AccountDetailScreen implements Screen {
                 passwordDialog.show(stage); // Hiển thị trên stage chính
             }
         });
+        SignOutButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                prefs.clear();
+                user = null;
+                prefs.flush();
+                game.setScreen(new LoginScreen(game));
+
+            }
+        });
+        ChangeProfileButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // Dialog chỉnh sửa thông tin
+                final Dialog profileDialog = new Dialog("Change Profile", skin) {
+                    @Override
+                    protected void result(Object object) {
+                        boolean confirmed = (Boolean) object;
+                        if (confirmed) {
+                            String username = usernameField.getText();
+                            int day = Integer.parseInt(DayBox.getSelected());
+                            int month = Integer.parseInt(MonthBox.getSelected());
+                            int year = Integer.parseInt(YearBox.getSelected());
+
+                            if (!new UserDao().CheckUser(null, username)) {
+                                if (new UserDao().ChangeProfile(email, username, day, month, year)) {
+                                    user.setUsername(username);
+                                    user.setDobDay(day);
+                                    user.setDobMonth(month);
+                                    user.setDobYear(year);
+                                    ((Main) game).setCurrentUser(user);
+                                    game.setScreen(new AccountDetailScreen(game));
+                                }
+                            } else {
+                                Dialog errorDialog = new Dialog("Change Profile Error", skin);
+                                errorDialog.text("Username already exists");
+                                errorDialog.button("OK", true);
+                                errorDialog.show(stage);
+                            }
+                        }
+                    }
+                };
+
+                profileDialog.pad(20);
+                profileDialog.getContentTable().defaults().pad(10);
+
+                // TextField nhập tên
+                usernameField = new TextField("", skin);
+                usernameField.setMessageText("Enter new Username");
+
+                // Dropdowns cho ngày/tháng/năm sinh
+                SelectBox<String> dayBox = new SelectBox<>(skin);
+                SelectBox<String> monthBox = new SelectBox<>(skin);
+                SelectBox<String> yearBox = new SelectBox<>(skin);
+
+                String[] days = new String[31];
+                for (int i = 1; i <= 31; i++) {
+                    days[i - 1] = String.valueOf(i);
+                }
+                dayBox.setItems(days);
+
+                String[] months = new String[12];
+                for (int i = 1; i <= 12; i++) {
+                    months[i - 1] = String.valueOf(i);
+                }
+                monthBox.setItems(months);
+
+                int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+                String[] years = new String[101];
+                for (int i = 0; i <= 100; i++) {
+                    years[i] = String.valueOf(currentYear - 100 + i);
+                }
+                yearBox.setItems(years);
+
+                // Add vào dialog
+                profileDialog.text("Enter new username:");
+                profileDialog.getContentTable().row();
+                profileDialog.getContentTable().add(usernameField).width(300).row();
+
+                profileDialog.text("Date of Birth:");
+                profileDialog.getContentTable().row();
+
+                Table dobTable = new Table();
+                dobTable.add(dayBox).padRight(10).width(80);
+                dobTable.add(monthBox).padRight(10).width(100);
+                dobTable.add(yearBox).width(120);
+
+                profileDialog.getContentTable().add(dobTable).row();
+
+                profileDialog.button("Confirm", true);
+                profileDialog.button("Cancel", false);
+
+                profileDialog.show(stage);
+
+                // Gán lại các select box instance nếu cần dùng ngoài
+                DayBox = dayBox;
+                MonthBox = monthBox;
+                YearBox = yearBox;
+            }
+        });
+
+
     }
 
 
