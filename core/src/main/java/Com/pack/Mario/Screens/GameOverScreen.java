@@ -8,34 +8,35 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.EventListener;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-
 /**
- * Created by brentaureli on 10/8/15.
+ * Màn hình hiện ra khi Game Over
+ * Gốc: by brentaureli on 10/8/15 — Đã dịch chú thích sang tiếng Việt
  */
 public class GameOverScreen implements Screen {
-    private Viewport viewport;
-    private Stage stage;
+    private final Viewport viewport;
+    private final Stage stage;
 
-    private Game game;
+    private final Game game;
+    private final String mapFile; // ✅ Tên map để load lại đúng Level
 
-    public GameOverScreen(Game game){
+    public GameOverScreen(Game game, String mapFile) {
         this.game = game;
+        this.mapFile = mapFile;
+
+        // Viewport cố định theo tỉ lệ chuẩn
         viewport = new FitViewport(Main.V_WIDTH, Main.V_HEIGHT, new OrthographicCamera());
         stage = new Stage(viewport, ((Main) game).batch);
 
+        // Kiểu chữ cho Label
         Label.LabelStyle font = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
 
+        // Tạo Table chứa các thành phần
         Table table = new Table();
         table.center();
         table.setFillParent(true);
@@ -52,15 +53,17 @@ public class GameOverScreen implements Screen {
 
     @Override
     public void show() {
-
+        // Không cần thêm gì ở đây
     }
 
     @Override
     public void render(float delta) {
-        if(Gdx.input.justTouched()) {
-            game.setScreen(new PlayScreen((Main) game));
+        // Nếu click bất kỳ chỗ nào -> chơi lại
+        if (Gdx.input.justTouched()) {
+            game.setScreen(new PlayScreen((Main) game, mapFile)); // ✅ Truyền map cũ vào
             dispose();
         }
+
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
@@ -68,22 +71,22 @@ public class GameOverScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-
+        // Không cần xử lý ở đây
     }
 
     @Override
     public void pause() {
-
+        // Không cần xử lý ở đây
     }
 
     @Override
     public void resume() {
-
+        // Không cần xử lý ở đây
     }
 
     @Override
     public void hide() {
-
+        // Không cần xử lý ở đây
     }
 
     @Override

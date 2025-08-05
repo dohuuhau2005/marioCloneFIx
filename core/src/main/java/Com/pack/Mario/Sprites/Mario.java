@@ -1,10 +1,15 @@
 package Com.pack.Mario.Sprites;
 
 import Com.pack.Mario.Main;
+import Com.pack.Mario.Model.User;
+import Com.pack.Mario.Model.UserDao;
+import Com.pack.Mario.ScreenBeforePlay.LevelSelectScreen;
 import Com.pack.Mario.Screens.PlayScreen;
 import Com.pack.Mario.Sprites.Enemies.Enemy;
 import Com.pack.Mario.Sprites.Enemies.Turtle;
 import Com.pack.Mario.Sprites.Other.FireBall;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -22,19 +27,27 @@ import static Com.pack.Mario.Sprites.Mario.State.DEAD;
  * Created by brentaureli on 8/27/15.
  */
 public class Mario extends Sprite {
+    private final TextureRegion marioStand;
+    private final Animation marioRun;
+    private final TextureRegion marioJump;
+    private final TextureRegion marioDead;
+    private final TextureRegion bigMarioStand;
+    private final TextureRegion bigMarioJump;
+    private final Animation bigMarioRun;
+    private final Animation growMario;
+    private final PlayScreen screen;
+    private final Array<FireBall> fireballs;
+    private final Main game; // thêm dòng này
     public State currentState;
     public State previousState;
     public World world;
     public Body b2body;
+    Preferences prefs;
+    int point;
+    int level;
+    String email;
+    int levelSelected;
     private boolean pendingFireball;
-    private TextureRegion marioStand;
-    private Animation marioRun;
-    private TextureRegion marioJump;
-    private TextureRegion marioDead;
-    private TextureRegion bigMarioStand;
-    private TextureRegion bigMarioJump;
-    private Animation bigMarioRun;
-    private Animation growMario;
     private float stateTimer;
     private boolean runningRight;
     private boolean marioIsBig;
@@ -42,10 +55,11 @@ public class Mario extends Sprite {
     private boolean timeToDefineBigMario;
     private boolean timeToRedefineMario;
     private boolean marioIsDead;
-    private PlayScreen screen;
-    private Array<FireBall> fireballs;
+    private boolean won = false;
 
-    public Mario(PlayScreen screen) {
+    //so sánh lv nếu lv lưu < lv màn thì wwin => +1
+    // mở được màn lv lưu+1   , int selectedLevel
+    public Mario(PlayScreen screen, Main game, int levelSelected) {
         //initialize default values
         this.screen = screen;
         this.world = screen.getWorld();
@@ -53,8 +67,14 @@ public class Mario extends Sprite {
         previousState = State.STANDING;
         stateTimer = 0;
         runningRight = true;
+        this.levelSelected = levelSelected;
 
+        prefs = Gdx.app.getPreferences("UserSession");
+        email = prefs.getString("email");
+        System.out.println("email: " + email);
         Array<TextureRegion> frames = new Array<TextureRegion>();
+        this.game = game;
+
 
         //get run animation frames and add them to marioRun Animation
         for (int i = 1; i < 4; i++)
@@ -128,7 +148,7 @@ public class Mario extends Sprite {
             if (ball.isDestroyed())
                 fireballs.removeValue(ball, true);
         }
-        
+
 
     }
 
@@ -235,6 +255,14 @@ public class Mario extends Sprite {
 
     public boolean isDead() {
         return marioIsDead;
+    }
+
+    public boolean isWon() {
+        return won;
+    }
+
+    public void setWon(boolean won) {
+        this.won = won;
     }
 
     public float getStateTimer() {
@@ -383,6 +411,29 @@ public class Mario extends Sprite {
         super.draw(batch);
         for (FireBall ball : fireballs)
             ball.draw(batch);
+    }
+
+    //winnnn set point = 0 caap nhat lv
+    public void onReachEnd() {
+        Gdx.app.postRunnable(() -> {
+//            String mapFile = "level" + LevelSelectScreen() + ".tmx";
+//            setLevelSelected(level);
+//            game.setScreen(new PlayScreen(game, mapFile));
+            User user = new User();
+            user = new UserDao().GetUser(email);
+            int point = 0;
+            int LevelDB = user.getLevel();
+            if (isWon()) {
+
+            }
+            if (LevelDB < levelSelected) {
+                new UserDao().upDateLevel(email, LevelDB + 1, point);
+                System.out.println("Win");
+                game.setScreen(new LevelSelectScreen(game));
+
+            }
+
+        });
     }
 
     public enum State {FALLING, JUMPING, STANDING, RUNNING, GROWING, DEAD}

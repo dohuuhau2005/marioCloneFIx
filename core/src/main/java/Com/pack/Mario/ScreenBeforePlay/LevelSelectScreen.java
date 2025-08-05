@@ -1,7 +1,11 @@
 package Com.pack.Mario.ScreenBeforePlay;
 
+import Com.pack.Mario.Main;
+import Com.pack.Mario.Model.UserDao;
+import Com.pack.Mario.Screens.PlayScreen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -20,17 +24,30 @@ public class LevelSelectScreen implements Screen {
     private final Game game;
     private final Stage stage;
     private final Skin skin;
-    private Texture backgroundTexture;
+    private final Texture backgroundTexture;
+    Preferences prefs;
+    String email;
+    private int levelSelected;
 
     public LevelSelectScreen(Game game) {
         this.game = game;
         this.stage = new Stage(new ScreenViewport());
         this.skin = new Skin(Gdx.files.internal("uiskin.json"));
         Gdx.input.setInputProcessor(stage);
-
+        prefs = Gdx.app.getPreferences("UserSession");
+        email = prefs.getString("email");
         backgroundTexture = new Texture(Gdx.files.internal("ma4.jpg")); // Đặt background ma4
 
         buildUI();
+    }
+
+    //dư/////
+    public int getLevelSelected() {
+        return levelSelected;
+    }
+
+    public void setLevelSelected(int levelSelected) {
+        this.levelSelected = levelSelected;
     }
 
     private void buildUI() {
@@ -64,8 +81,17 @@ public class LevelSelectScreen implements Screen {
         // ===== LEVEL BUTTONS =====
         Table levelTable = new Table();
         levelTable.defaults().pad(40).width(150).height(70);
-
-        for (int i = 1; i <= 6; i++) {
+        int max = 6;
+        int lv = new UserDao().getLevel(email);
+        int CanSelect = 0;
+        if (max - lv >= 0) {
+            for (int i = 1; i <= lv + 1; i++) {
+                CanSelect = i;
+            }
+        } else {
+            CanSelect = max;
+        }
+        for (int i = 1; i <= CanSelect; i++) {
             TextButton levelBtn = new TextButton(String.valueOf(i), skin);
             levelBtn.getLabel().setFontScale(1.5f);
             levelBtn.getStyle().fontColor = Color.BLACK;
@@ -75,7 +101,9 @@ public class LevelSelectScreen implements Screen {
             levelBtn.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    System.out.println("Selected level: " + level);
+                    String mapFile = "level" + level + ".tmx";
+                    setLevelSelected(level);
+                    game.setScreen(new PlayScreen((Main) game, mapFile)); // <-- Mở PlayScreen với map tương ứng
                 }
             });
 

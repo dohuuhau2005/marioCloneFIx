@@ -1,6 +1,7 @@
 package Com.pack.Mario.Screens;
 
 import Com.pack.Mario.Main;
+import Com.pack.Mario.Model.UserDao;
 import Com.pack.Mario.Scenes.Hud;
 import Com.pack.Mario.Sprites.Enemies.Enemy;
 import Com.pack.Mario.Sprites.Items.Item;
@@ -11,6 +12,7 @@ import Com.pack.Mario.Tools.B2WorldCreator;
 import Com.pack.Mario.Tools.WorldContactListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
@@ -30,68 +32,64 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static Com.pack.Mario.Sprites.Mario.State.DEAD;
 
-/**
- * Created by brentaureli on 8/14/15.
- */
 public class PlayScreen implements Screen {
     public static boolean alreadyDestroyed = false;
-    //Reference to our Game, used to set Screens
-    private Main game;
-    private TextureAtlas atlas;
-    //basic playscreen variables
-    private OrthographicCamera gamecam;
-    private Viewport gamePort;
-    private Hud hud;
 
-    //Tiled map variables
-    private TmxMapLoader maploader;
-    private TiledMap map;
-    private OrthogonalTiledMapRenderer renderer;
+    private final Main game;
+    private final TextureAtlas atlas;
+    private final OrthographicCamera gamecam;
+    private final Viewport gamePort;
+    private final Hud hud;
 
-    //Box2d variables
-    private World world;
-    private Box2DDebugRenderer b2dr;
-    private B2WorldCreator creator;
+    private final TmxMapLoader maploader;
+    private final TiledMap map;
+    private final OrthogonalTiledMapRenderer renderer;
 
-    //sprites
-    private Mario player;
+    private final World world;
+    private final Box2DDebugRenderer b2dr;
+    private final B2WorldCreator creator;
 
-    private Music music;
+    private final Mario player;
+    private final Music music;
 
-    private Array<Item> items;
-    private LinkedBlockingQueue<ItemDef> itemsToSpawn;
+    private final Array<Item> items;
+    private final LinkedBlockingQueue<ItemDef> itemsToSpawn;
 
+    private final String mapFile;
+    private final String email;
 
-    public PlayScreen(Main game) {
-        atlas = new TextureAtlas("Mario_and_Enemies.pack");
-
+    public PlayScreen(Main game, String mapFile) {
         this.game = game;
-        //create cam used to follow mario through cam world
+        this.mapFile = mapFile;
+        this.atlas = new TextureAtlas("Mario_and_Enemies.pack");
+        System.out.println("Map file: " + mapFile);
         gamecam = new OrthographicCamera();
-
-        //create a FitViewport to maintain virtual aspect ratio despite screen size
         gamePort = new FitViewport(Main.V_WIDTH / Main.PPM, Main.V_HEIGHT / Main.PPM, gamecam);
-
-        //create our game HUD for scores/timers/level info
         hud = new Hud(game.batch);
 
-        //Load our map and setup our map renderer
         maploader = new TmxMapLoader();
-        map = maploader.load("level1.tmx");
+        map = maploader.load(mapFile); // Load bản đồ từ tham số
         renderer = new OrthogonalTiledMapRenderer(map, 1 / Main.PPM);
 
-        //initially set our gamcam to be centered correctly at the start of of map
         gamecam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
 
-        //create our Box2D world, setting no gravity in X, -10 gravity in Y, and allow bodies to sleep
         world = new World(new Vector2(0, -10), true);
-        //allows for debug lines of our box2d world.
         b2dr = new Box2DDebugRenderer();
 
         creator = new B2WorldCreator(this);
 
-        //create mario in our game world
-        player = new Mario(this);
+
+        String numberStr = mapFile.replaceAll("\\D+", ""); // Bỏ hết ký tự không phải số
+        int levelSelected = Integer.parseInt(numberStr); // Chuyển thành số nguyên
+        System.out.println("Level: " + levelSelected); // Output: 3
+
+
+        player = new Mario(this, game, levelSelected);
+
+
+        // Lấy email người dùng từ Preferences
+        Preferences prefs = Gdx.app.getPreferences("UserSession");
+        email = prefs.getString("email", "");
 
         world.setContactListener(new WorldContactListener());
 
@@ -108,7 +106,6 @@ public class PlayScreen implements Screen {
         itemsToSpawn.add(idef);
     }
 
-
     public void handleSpawningItems() {
         if (!itemsToSpawn.isEmpty()) {
             ItemDef idef = itemsToSpawn.poll();
@@ -118,50 +115,32 @@ public class PlayScreen implements Screen {
         }
     }
 
-
     public TextureAtlas getAtlas() {
         return atlas;
     }
 
     @Override
     public void show() {
-
-
     }
 
     public void handleInput(float dt) {
-        //control our player using immediate impulses
         if (player.currentState != DEAD) {
-            if (Gdx.input.isKeyJustPressed(Input.Keys.UP))
-                player.jump();
+            if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) player.jump();
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= 2)
                 player.b2body.applyLinearImpulse(new Vector2(0.2f, 0), player.b2body.getWorldCenter(), true);
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -2)
                 player.b2body.applyLinearImpulse(new Vector2(-0.2f, 0), player.b2body.getWorldCenter(), true);
-//          không delay
-//            float maxSpeed = 2f;
-//            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT))
-//                player.b2body.setLinearVelocity(maxSpeed, player.b2body.getLinearVelocity().y);
-//            else if (Gdx.input.isKeyPressed(Input.Keys.LEFT))
-//                player.b2body.setLinearVelocity(-maxSpeed, player.b2body.getLinearVelocity().y);
-//            else
-//                player.b2body.setLinearVelocity(0, player.b2body.getLinearVelocity().y);
-
-            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
-                player.fire();
+            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) player.fire();
         }
-
     }
 
     public void update(float dt) {
-        //handle user input first
         handleInput(dt);
         handleSpawningItems();
 
-        //takes 1 step in the physics simulation(60 times per second)
         world.step(1 / 60f, 6, 2);
-
         player.update(dt);
+
         for (Enemy enemy : creator.getEnemies()) {
             enemy.update(dt);
             if (enemy.getX() < player.getX() + 224 / Main.PPM) {
@@ -174,32 +153,22 @@ public class PlayScreen implements Screen {
 
         hud.update(dt);
 
-        //attach our gamecam to our players.x coordinate
         if (player.currentState != DEAD) {
             gamecam.position.x = player.b2body.getPosition().x;
         }
 
-        //update our gamecam with correct coordinates after changes
         gamecam.update();
-        //tell our renderer to draw only what our camera can see in our game world.
         renderer.setView(gamecam);
-
     }
-
 
     @Override
     public void render(float delta) {
-        //separate our update logic from render
         update(delta);
 
-        //Clear the game screen with Black
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        //render our game map
         renderer.render();
-
-        //renderer our Box2DDebugLines
         b2dr.render(world, gamecam.combined);
 
         game.batch.setProjectionMatrix(gamecam.combined);
@@ -211,29 +180,25 @@ public class PlayScreen implements Screen {
             item.draw(game.batch);
         game.batch.end();
 
-        //Set our batch to now draw what the Hud camera sees.
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
 
         if (gameOver()) {
-            game.setScreen(new GameOverScreen(game));
+            int finalScore = Hud.getScore();
+            System.out.println("Your Score: " + finalScore);
+            new UserDao().UpdateScore(email, finalScore);
+            game.setScreen(new GameOverScreen(game, mapFile)); // vẫn truyền mapFile
             dispose();
         }
-
     }
 
     public boolean gameOver() {
-        if (player.currentState == DEAD && player.getStateTimer() > 3) {
-            return true;
-        }
-        return false;
+        return player.currentState == DEAD && player.getStateTimer() > 3;
     }
 
     @Override
     public void resize(int width, int height) {
-        //updated our game viewport
         gamePort.update(width, height);
-
     }
 
     public TiledMap getMap() {
@@ -246,22 +211,18 @@ public class PlayScreen implements Screen {
 
     @Override
     public void pause() {
-
     }
 
     @Override
     public void resume() {
-
     }
 
     @Override
     public void hide() {
-
     }
 
     @Override
     public void dispose() {
-        //dispose of all our opened resources
         map.dispose();
         renderer.dispose();
         world.dispose();

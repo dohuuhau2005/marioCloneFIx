@@ -1,10 +1,8 @@
 package Com.pack.Mario.ScreenBeforePlay;
 
 import Com.pack.Mario.Main;
-import Com.pack.Mario.Model.MyGame;
 import Com.pack.Mario.Model.User;
 import Com.pack.Mario.Model.UserDao;
-import Com.pack.Mario.Screens.PlayScreen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
@@ -21,7 +19,7 @@ public class HomeScreen implements Screen {
     Game game;
     User user;
     String email;
-    MyGame DataUser;
+
     private Stage stage;
     private Texture marioTexture, logoTexture;
     private Image marioImage, logoImage;
@@ -77,7 +75,7 @@ public class HomeScreen implements Screen {
                 // Ví dụ chuyển sang màn chơi
                 ((Main) game).setCurrentUser(user);
                 System.out.println("Bắt đầu chơi...");
-                game.setScreen(new PlayScreen((Main) game));
+                game.setScreen(new LevelSelectScreen(game));
             }
         });
 

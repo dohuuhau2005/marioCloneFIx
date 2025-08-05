@@ -1,5 +1,6 @@
 package Com.pack.Mario.ScreenBeforePlay;
 
+import Com.pack.Mario.Model.UserDao;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -16,6 +17,8 @@ public class ForgotPasswordScreen implements Screen {
     Stage stage;
     Skin skin;
     TextField emailField;
+    TextField passwordField;
+    TextField ConfirmPasswordField;
     TextButton submitButton;
     TextButton backButton;
 
@@ -37,6 +40,10 @@ public class ForgotPasswordScreen implements Screen {
 
         emailField = new TextField("", skin);
         emailField.setMessageText("Email");
+        passwordField = new TextField("", skin);
+        passwordField.setMessageText("Password");
+        ConfirmPasswordField = new TextField("", skin);
+        ConfirmPasswordField.setMessageText("Confirm Password");
         submitButton = new TextButton("Submit", skin);
         backButton = new TextButton("Back", skin);
 
@@ -53,6 +60,10 @@ public class ForgotPasswordScreen implements Screen {
         table.row();
         table.add(emailField).colspan(2).padTop(20).padBottom(20).width(300);
         table.row();
+        table.add(passwordField).colspan(2).padTop(20).padBottom(20).width(300);
+        table.row();
+        table.add(ConfirmPasswordField).colspan(2).padTop(20).padBottom(20).width(300);
+        table.row();
         table.add(submitButton).colspan(2).padBottom(30).padTop(20).width(200);
         table.row();
         table.add(backButton).colspan(2).padBottom(30).padTop(20).width(200);
@@ -63,8 +74,20 @@ public class ForgotPasswordScreen implements Screen {
             @Override
             public boolean handle(Event event) {
                 if (submitButton.isPressed()) {
-                    // Handle submit logic here
-                    System.out.println("Submit Clicked");
+                    if (passwordField.getText().equals(ConfirmPasswordField.getText())) {
+                        new UserDao().ChangePassword(emailField.getText(), passwordField.getText());
+
+                        Dialog successDialog = new Dialog("Success", skin);
+                        successDialog.text("Change Password successful!");
+                        successDialog.button("OK", true);
+                        successDialog.show(stage);
+                    } else {
+
+                        Dialog successDialog = new Dialog("Success", skin);
+                        successDialog.text("Error Password not match");
+                        successDialog.button("OK", true);
+                        successDialog.show(stage);
+                    }
                 }
                 return false;
             }

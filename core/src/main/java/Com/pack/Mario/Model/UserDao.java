@@ -55,6 +55,22 @@ public class UserDao {
         return users.values().stream().anyMatch(u -> u.getUsername().equals(username) || u.getEmail().equals(email));
     }
 
+    public void UpdateScore(String email, int score) {
+        try {
+            User user = users.get(email);
+            if (user == null) {
+                System.out.println("User not found");
+            }
+            user.setPoint(score);
+            users.put(email, user);
+            fileStorage.writeUsersToFile(users);
+            System.out.println("Update score: " + score);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error in updating score");
+        }
+    }
+
     public boolean Login(String email, String password) {
         try {
             User user = users.get(email);
@@ -136,10 +152,28 @@ public class UserDao {
 
             List<User> sortedUsers = new ArrayList<>(users.values());
 
-            // Sắp xếp giảm dần theo điểm
-            sortedUsers.sort((u1, u2) -> Integer.compare(u2.getLevel(), u1.getLevel()));
+            User[] usersArray = new User[sortedUsers.size()];
+            for (int i = 0; i < sortedUsers.size(); i++) {
+                usersArray[i] = sortedUsers.get(i);
+            }
 
-            return sortedUsers.toArray(new User[0]);
+
+            for (int i = 0; i < usersArray.length - 1; i++) {
+                for (int j = i + 1; j < usersArray.length; j++) {
+                    if (usersArray[i].getLevel() < usersArray[j].getLevel()
+                        || (usersArray[j].getLevel() == usersArray[i].getLevel() && usersArray[i].getPoint() < usersArray[j].getPoint())) {
+                        User tmp = usersArray[i];
+                        usersArray[i] = usersArray[j];
+                        usersArray[j] = tmp;
+                    }
+
+                }
+            }
+//            // Sắp xếp giảm dần theo điểm
+//            sortedUsers.sort((u1, u2) -> Integer.compare(u2.getLevel(), u1.getLevel()));
+
+
+            return usersArray;
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error ranking users" + e.getMessage());
@@ -149,4 +183,29 @@ public class UserDao {
 
     }
 
+    public void upDateLevel(String email, int level, int point) {
+        try {
+            User user = users.get(email);
+            if (user == null) return;
+            user.setLevel(level);
+            user.setPoint(point);
+            users.put(email, user);
+            fileStorage.writeUsersToFile(users);
+            System.out.println("Update level successfully for: " + email);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error in updating level");
+        }
+    }
+
+    public int getLevel(String email) {
+        try {
+            User user = users.get(email);
+            if (user == null) return -1;
+            return user.getLevel();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
 }

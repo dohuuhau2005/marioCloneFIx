@@ -61,27 +61,27 @@ public class AccountDetailScreen implements Screen {
         stage.addActor(root);
 
         // ===== HEADER =====
-        Table header = new Table();
-        header.setBackground(skin.newDrawable("white", new Color(0.2f, 0.4f, 0.8f, 1))); // blue bar
-        header.pad(15);
-
-        Label titleLabel = new Label("Account Details", skin);
-        titleLabel.setFontScale(1.8f);
-        titleLabel.setColor(Color.WHITE);
-        header.add(titleLabel).expandX().left().padLeft(20);
-
-        TextButton backButton = new TextButton("Back", skin);
-        backButton.getLabel().setFontScale(1.2f);
-        backButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new HomeScreen(game));
-            }
-        });
-        header.add(backButton).right().width(100).height(40).padRight(10);
-
-        root.add(header).expandX().fillX();
-        root.row();
+//        Table header = new Table();
+//        header.setBackground(skin.newDrawable("white", new Color(0.2f, 0.4f, 0.8f, 1))); // blue bar
+//        header.pad(15);
+//
+//        Label titleLabel = new Label("Account Details", skin);
+//        titleLabel.setFontScale(1.8f);
+//        titleLabel.setColor(Color.WHITE);
+//        header.add(titleLabel).expandX().left().padLeft(20);
+//
+//        TextButton backButton = new TextButton("Back", skin);
+//        backButton.getLabel().setFontScale(1.2f);
+//        backButton.addListener(new ClickListener() {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y) {
+//                game.setScreen(new HomeScreen(game));
+//            }
+//        });
+//        header.add(backButton).right().width(100).height(40).padRight(10);
+//
+//        root.add(header).expandX().fillX();
+//        root.row();
 
         // ===== CONTENT =====
         Table content = new Table();
@@ -95,8 +95,8 @@ public class AccountDetailScreen implements Screen {
 
         Label usernameLabel = new Label("Username: " + user.getUsername(), skin);
         Label DOBLabel = new Label("Date Of Birth: " + user.getDobDay() + " " + user.getDobMonth() + " " + user.getDobYear(), skin);
-        Label rankingLabel = new Label("Ranking: #1234", skin);
-        Label levelLabel = new Label("Level: 15", skin);////////////////thieu level
+        Label rankingLabel = new Label("Point: " + user.getPoint(), skin);
+        Label levelLabel = new Label("Level: " + user.getLevel(), skin);////////////////thieu level
         ChangeProfileButton = new TextButton("Change Profile", skin);
         ChangePasswordButton = new TextButton("Change Password", skin);
         SignOutButton = new TextButton("Sign Out", skin);
@@ -131,8 +131,8 @@ public class AccountDetailScreen implements Screen {
 
         usernameLabel = new Label("Username: " + user.getUsername(), skin);
         DOBLabel = new Label("Date Of Birth: " + user.getDobDay() + " - " + user.getDobMonth() + " - " + user.getDobYear(), skin);
-        rankingLabel = new Label("Ranking: #1234", skin);
-        levelLabel = new Label("Level: 15", skin);
+        rankingLabel = new Label("Point: " + user.getPoint(), skin);
+        levelLabel = new Label("Level: " + user.getLevel(), skin);
 
         for (Label label : new Label[]{usernameLabel, rankingLabel, levelLabel, DOBLabel}) {
             label.setFontScale(1.5f);
