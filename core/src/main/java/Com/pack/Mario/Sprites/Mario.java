@@ -3,8 +3,8 @@ package Com.pack.Mario.Sprites;
 import Com.pack.Mario.Main;
 import Com.pack.Mario.Model.User;
 import Com.pack.Mario.Model.UserDao;
-import Com.pack.Mario.ScreenBeforePlay.LevelSelectScreen;
 import Com.pack.Mario.Screens.PlayScreen;
+import Com.pack.Mario.Screens.WinScreen;
 import Com.pack.Mario.Sprites.Enemies.Enemy;
 import Com.pack.Mario.Sprites.Enemies.Turtle;
 import Com.pack.Mario.Sprites.Other.FireBall;
@@ -428,11 +428,11 @@ public class Mario extends Sprite {
             }
             if (LevelDB < levelSelected) {
                 new UserDao().upDateLevel(email, LevelDB + 1, point);
-                System.out.println("Win");
-                game.setScreen(new LevelSelectScreen(game));
+
 
             }
-
+            System.out.println("Win");
+            game.setScreen(new WinScreen(game));
         });
     }
 

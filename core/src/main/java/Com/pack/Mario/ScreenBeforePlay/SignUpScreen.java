@@ -7,6 +7,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -45,6 +46,12 @@ public class SignUpScreen implements Screen {
     }
 
     public void CreateTable() {
+        Texture backgroundTexture = new Texture(Gdx.files.internal("signup.jpg"));
+        Image backgroundImage = new Image(backgroundTexture);
+        backgroundImage.setFillParent(true); // Cho phủ toàn màn hình
+
+        stage.addActor(backgroundImage); //  Add đầu tiên để nằm dưới cùng
+
         Table table = new Table();
         table.setFillParent(true);
         table.center();

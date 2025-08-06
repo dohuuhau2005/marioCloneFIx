@@ -3,6 +3,7 @@ package Com.pack.Mario.Screens;
 import Com.pack.Mario.Main;
 import Com.pack.Mario.Model.UserDao;
 import Com.pack.Mario.Scenes.Hud;
+import Com.pack.Mario.ScreenBeforePlay.HomeScreen;
 import Com.pack.Mario.Sprites.Enemies.Enemy;
 import Com.pack.Mario.Sprites.Items.Item;
 import Com.pack.Mario.Sprites.Items.ItemDef;
@@ -15,17 +16,27 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.concurrent.LinkedBlockingQueue;
@@ -57,6 +68,11 @@ public class PlayScreen implements Screen {
 
     private final String mapFile;
     private final String email;
+
+    boolean paused = false;
+    Skin skin;
+    Table table;
+    private Stage pauseStage;
 
     public PlayScreen(Main game, String mapFile) {
         this.game = game;
@@ -131,7 +147,82 @@ public class PlayScreen implements Screen {
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -2)
                 player.b2body.applyLinearImpulse(new Vector2(-0.2f, 0), player.b2body.getWorldCenter(), true);
             if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) player.fire();
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                paused = !paused;
+                if (paused) {
+                    ShowPausedMenu();
+                } else {
+                    hideShowPausedMenu();
+                }
+            }
         }
+    }
+
+    private void hideShowPausedMenu() {
+        table.setVisible(false);
+        Gdx.input.setInputProcessor(null);
+    }
+
+    private void ShowPausedMenu() {
+        if (pauseStage == null) {
+
+            BitmapFont bigFont = new BitmapFont(); // Dùng font mặc định
+            bigFont.getData().setScale(2f);
+
+            skin = new Skin(Gdx.files.internal("uiskin.json")); // bạn có thể thay bằng skin bạn đang dùng
+            pauseStage = new Stage(new ScreenViewport());
+            table = new Table();
+            table.setFillParent(true);
+
+            Image background = new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("black.png")))));
+            background.setColor(0, 0, 0, 0.6f); // R, G, B, Alpha (60% mờ)
+            background.setFillParent(true);
+            pauseStage.addActor(background); // Thêm trước table
+            pauseStage.addActor(table);      // Đảm bảo table nằm trên
+
+
+            Label label = new Label("This Process will be deleted", new Label.LabelStyle(bigFont, Color.WHITE));
+            Label label1 = new Label("Do you want to exit ?", new Label.LabelStyle(bigFont, Color.WHITE));
+            TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
+            buttonStyle.font = bigFont;
+            buttonStyle.up = skin.getDrawable("default-round");
+            buttonStyle.down = skin.getDrawable("default-round-down");
+
+            TextButton continueBtn = new TextButton("Continue", buttonStyle);
+            TextButton exitBtn = new TextButton("Exit", buttonStyle);
+
+// Nút Continue: tiếp tục game
+            continueBtn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    paused = false;
+                    Gdx.input.setInputProcessor(null); // quay lại điều khiển game
+                    pauseStage.dispose();
+                    pauseStage = null;
+                }
+            });
+
+// Nút Exit: thoát về menu
+            exitBtn.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    pauseStage.dispose();  // 🔥 Dọn dẹp
+                    pauseStage = null;
+                    game.setScreen(new HomeScreen(game)); // hoặc LevelSelectScreen, tùy bạn
+                }
+            });
+            Table buttonTable = new Table();
+            buttonTable.add(continueBtn).padRight(10);
+            buttonTable.add(exitBtn).padLeft(10);
+
+// Thêm vào table chính
+            table.add(label).padBottom(10).row();
+            table.add(label1).padBottom(20).row();
+            table.add(buttonTable).center().row();
+
+        }
+        Gdx.input.setInputProcessor(pauseStage);
+        table.setVisible(true);
     }
 
     public void update(float dt) {
@@ -163,7 +254,10 @@ public class PlayScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        update(delta);
+        if (!paused) {
+            update(delta);
+        }
+
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -182,6 +276,11 @@ public class PlayScreen implements Screen {
 
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
+
+        if (paused && pauseStage != null) {
+            pauseStage.act(delta);
+            pauseStage.draw();
+        }
 
         if (gameOver()) {
             int finalScore = Hud.getScore();
@@ -228,6 +327,11 @@ public class PlayScreen implements Screen {
         world.dispose();
         b2dr.dispose();
         hud.dispose();
+        if (pauseStage != null) {
+            pauseStage.dispose();
+            pauseStage = null;
+        }
+
     }
 
     public Hud getHud() {
